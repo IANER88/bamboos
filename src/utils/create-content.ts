@@ -6,15 +6,19 @@ type Execute = {
 
 export const contents: Execute[] = [];
 
-export default function createContent(content: () => string | number) {
+export default function createContent(content: () => string | number | []) {
 
   const execute = () => {
-    contents.push(executes);
+     contents.push(executes);
     try {
-      content()
+      const node = content();
+      if (Array.isArray(node)){
+        contents.pop();
+        return node;
+      }
       const subscriber = new SignalContent(content);
       executes.subscriber = subscriber;
-      return subscriber;
+      return subscriber.once();
     } finally {
       contents.pop();
     }

@@ -11,11 +11,4 @@ export default function createEvent(options: Options) {
     element,
   } = options;
   element[event] = func;
-  // for (const event of on) {
-  //   if (event === 'change' && node.tag === 'input') {
-  //     createInput({ element, node, event })
-  //   } else {
-  //     element.addEventListener(event, node.on[event])
-  //   }
-  // }
 }

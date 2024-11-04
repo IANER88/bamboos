@@ -8,6 +8,7 @@ import SignalTabulate from './signal-tabulate';
 import { attributes } from '@/utils/create-attribute';
 import SignalAttribute from './signal-attribute';
 import { createTabulate } from '@/utils';
+import SignalList from './signal-list';
 
 export type Execute = {
   subscriber: SignalContent |
@@ -32,7 +33,7 @@ class Signal<S> implements ISignal<S> {
 
   #determine: Set<Execute> = new Set();
 
-  #tabulate: Set<Execute> = new Set();
+  #map: Set<Execute> = new Set();
 
   #recrudescence: Set<{
     rely: () => void;
@@ -43,7 +44,7 @@ class Signal<S> implements ISignal<S> {
     const observers = [
       ...this.#attribute,
       ...this.#content,
-      ...this.#tabulate,
+      ...this.#map,
       ...this.#determine,
     ];
     for (const observer of observers) {
@@ -52,8 +53,8 @@ class Signal<S> implements ISignal<S> {
         if (!contains) {
           if (observer.subscriber instanceof SignalAttribute)
             this.#attribute.delete(observer);
-          if (observer.subscriber instanceof SignalTabulate)
-            this.#tabulate.delete(observer);
+          // if (observer.subscriber instanceof SignalTabulate)
+          //   this.#map.delete(observer);
           if (observer.subscriber instanceof SignalContent)
             this.#content.delete(observer)
           // if (observer.subscriber instanceof SignalDetermine) {
@@ -86,7 +87,8 @@ class Signal<S> implements ISignal<S> {
       }
       const content = contents.at(-1);
       const determine = determines.at(-1);
-      const attribute = attributes.at(-1)
+      const attribute = attributes.at(-1);
+      
       if (content) this.#content.add(content);
       if (determine) this.#determine.add(determine);
       if (attribute) this.#attribute.add(attribute);
@@ -120,14 +122,14 @@ class Signal<S> implements ISignal<S> {
     return signal;
   }
 
-  tabulate = (fn: (item: S extends (infer U)[] ? U : S, index: number) => unknown) => {
+  map = (fn: (item: S extends (infer U)[] ? U : S, index: number) => unknown) => {
     if (!(this.value instanceof Array)) throw Error('is not array type');
     const list = () => {
       return [...this.value as []].map(fn)
     };
     const observer = createTabulate(list);
-    this.#tabulate.add({ subscriber: observer })
-    return observer as unknown as Element;
+    this.#map.add({ subscriber: observer });
+    return observer.once() as unknown as Element;
   }
 }
 

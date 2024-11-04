@@ -17,7 +17,7 @@ export default function createDetermine(condition: Condition) {
       condition();
       const subscriber = new SignalDetermine(condition);
       executes.subscriber = subscriber;
-      return subscriber;
+      return subscriber.once();
     } finally {
       determines.pop();
     }

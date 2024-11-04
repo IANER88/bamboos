@@ -1,8 +1,4 @@
 import type { Execute } from "@/signal";
-import SignalDetermine from "@/signal/signal-determine";
-import SignalComponent from "@/signal/signal-component";
-import SignalContent from "@/signal/signal-content";
-import SignalTabulate from "@/signal/signal-tabulate";
 
 export const observers: Execute[] = [];
 
@@ -24,13 +20,7 @@ export default function createElement(tag: string, attribute, ...children) {
       }
     }
     if (children.length) {
-      const content = children.flatMap((view) => {
-        const node = view instanceof SignalContent ||
-          view instanceof SignalDetermine || view instanceof SignalTabulate
-        if (node) return view.once();
-        if (view instanceof SignalComponent) return view.render();
-        return view;
-      })
+      const content = children.flat();
       element.append(...content)
     }
     return element;

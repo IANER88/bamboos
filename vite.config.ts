@@ -10,7 +10,7 @@ export default defineConfig({
       include: ['src/**/*'],
       copyDtsFiles: true,
     }),
-    // soften(),
+    soften(),
   ],
   resolve: {
     alias: {
@@ -36,6 +36,11 @@ export default defineConfig({
             comments: false,  // 移除注释
           },
         })
+      ],
+      external: [
+        '@babel/core',
+        '@babel/plugin-transform-react-jsx',
+        '@babel/preset-typescript',
       ]
     }
   },

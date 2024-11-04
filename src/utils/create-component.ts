@@ -1,6 +1,8 @@
 import SignalComponent from "@/signal/signal-component";
 import { JSX } from "@/types/jsx-runtime";
 import { Reference } from "@/hooks/use-reference";
+import { Disentangle, disentangles } from "@/hooks/use-disentangle";
+import { Mount, mounts } from "@/hooks/use-mount";
 
 
 export type Executes = { subscriber: SignalComponent | null }
@@ -12,6 +14,13 @@ type Props = {
   ['use:key']?: number | string;
 }
 export const components: Executes[] = [];
+
+type ICycles = {
+  mounts: Set<Mount | unknown>;
+  disentangles: Set<Disentangle | unknown>;
+}
+
+export const cycles: ICycles[] = [];
 export default function createComponent(component: Component, props: Props, ...children) {
 
   const {
@@ -20,24 +29,22 @@ export default function createComponent(component: Component, props: Props, ...c
     ...rest
   } = props ?? {};
 
-  const program = () => component(
-    Object.freeze({
-      ...rest,
-      children,
-    }),
-    reference
-  )
-
   const execute = () => {
-    if (!components.length) components.push(executes);;
-    const element = new SignalComponent(program);
-    executes.subscriber = element;
-    return element;
+    cycles.push(cycle);
+    try {
+      const disentangle = disentangles.at(-1);
+      const mount = mounts.at(-1);
+      if (disentangle) cycle.disentangles.add(disentangle);
+      if (mount) cycle.mounts.add(mount);
+      return component(props, reference);
+    } finally {
+      cycles.pop();
+    }
   }
-
-  const executes: Executes = {
-    subscriber: null,
-  }
-
+  
+  const cycle = {
+    mounts: new Set(),
+    disentangles: new Set(),
+  }  
   return execute();
 }

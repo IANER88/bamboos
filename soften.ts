@@ -51,16 +51,21 @@ export default function SoftenJSX(): Plugin {
             CallExpression(path: any) {
               const callee = path.node.callee;
 
-              const test = (node) => {
+              const test = (node: unknown) => {
                 return types.isIdentifier(node) ||
                   types.isMemberExpression(node);
               }
 
-              const block = ({
-                types,
-                argument,
-                name,
-              }) => {
+              type Options = {
+                argument: unknown;
+                name?: string;
+              }
+
+              const block = (options: Options) => {
+                const {
+                  argument,
+                  name,
+                } = options;
                 const util = types.arrowFunctionExpression(
                   [],
                   types.blockStatement([
@@ -69,48 +74,105 @@ export default function SoftenJSX(): Plugin {
                     )
                   ])
                 );
-                return types.callExpression(
+                return name ? types.callExpression(
                   types.identifier(name),
                   [util],
-                )
+                ) : util
               }
 
-              const state = (is) => {
-                return path?.node?.arguments?.map((argument: any, index) => {
+              const state = (is: boolean) => {
+                const node = path?.node?.arguments?.map((argument: any, index: number) => {
                   // 处理三元运算符
                   if (types.isConditional(argument) ||
                     types.isLogicalExpression(argument)
                   ) {
-                    return block({
-                      argument,
-                      name: 'Soften.createDetermine',
-                      types,
-                    })
+                    const test = argument.test;
+                    const consequent = argument.consequent;
+                    const alternate = argument.alternate;
+
+                    const arrow = types.arrowFunctionExpression(
+                      [],
+                      types.blockStatement([
+                        types.returnStatement(
+                          types.conditionalExpression(
+                            test,
+                            block({
+                              argument: consequent,
+                              name: 'Soften.createContent'
+                            }),
+                            block({
+                              argument: alternate,
+                              name: 'Soften.createContent'
+                            }),
+                          )
+                        )
+                      ])
+                    );
+                    return types.callExpression(
+                      types.identifier('Soften.createDetermine'),
+                      [arrow]
+                    )
                   }
                   if (index !== 0 && test(argument)) {
                     return block({
                       argument,
                       name: 'Soften.createContent',
-                      types,
                     })
                   }
-                  if (is) {
-                    if (types.isObjectExpression(argument)) {
-                      for (const view of argument.properties) {
-                        if (test(view.value) ||
-                          types.isExpression(view.value)) {
+                  if (types.isObjectExpression(argument)) {
+                    argument.properties.forEach((view: any, index: number) => {
+                      if (test(view.value) || types.isExpression(view.value)) {
+                        if (is) {
                           view.value = block({
                             argument: view.value,
                             name: 'Soften.createAttribute',
-                            types,
                           })
+                        } else {
+                          argument.properties[index] = types.objectMethod(
+                            'get',
+                            view.key,
+                            [],
+                            types.blockStatement([
+                              types.returnStatement(
+                                view.value
+                              )
+                            ])
+                          )
                         }
                       }
-                      return argument
+                    });
+                    if (!is) {
+                      const children = path.node.arguments.slice(2).map(
+                        (item: unknown) => {
+                          if (test(item)) {
+                            return block({
+                              argument: item,
+                              name: 'Soften.createContent'
+                            })
+                          }
+                          return item;
+                        }
+                      );
+                      const get_children = types.objectMethod(
+                        'get',
+                        types.identifier('children'),
+                        [],
+                        types.blockStatement([
+                          types.returnStatement(
+                            types.arrayExpression(
+                              children
+                            )
+                          )
+                        ])
+                      )
+                      argument.properties.push(get_children)
                     }
+                    return argument
                   }
                   return argument;
-                })
+                });
+
+                return is ? node : node.slice(0, 2);
               }
 
               if (

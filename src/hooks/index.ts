@@ -1,20 +1,9 @@
-import useSignal from "./use-signal";
-import useMount from "./use-mount";
-import { useRecrudescence } from "./use-recrudescence";
-import { useDisentangle } from "./use-disentangle";
-import { useReference } from "./use-reference";
-import useMemo from "./use-memo";
-import useDarkScheme from "./use-dark-scheme";
-import useImperativeReference from "./use-imperative-reference";
-import useId from './use-id'
-export {
-  useSignal,
-  useMount,
-  useRecrudescence,
-  useDisentangle,
-  useMemo,
-  useReference,
-  useDarkScheme,
-  useId,
-  useImperativeReference,
-}
+export { default as useSignal } from "./use-signal";
+export { default as useMount } from './use-mount';
+export { default as useMemo } from './use-memo';
+export { default as useDarkScheme } from './use-dark-scheme';
+export { default as useImperativeReference } from './use-imperative-reference';
+export { default as useId } from './use-id';
+export { default as useDeconstruction } from './use-deconstruction';
+export { useRecrudescence } from './use-recrudescence';
+export { useDisentangle } from './use-disentangle';

@@ -1,10 +1,10 @@
-import { Disentangle } from "@/hooks/use-disentangle";
-import SignalComponent from "./signal-component";
+import { Disentangle, disentangles } from "@/hooks/use-disentangle";
 import SignalTabulate from "./signal-tabulate";
 import { JSX } from "@/types/jsx-runtime";
-import createComponent from "@/utils/create-component";
+import createComponent, { cycles } from "@/utils/create-component";
+import { Mount } from "@/hooks/use-mount";
 
-type Root = Element[] | Element | Comment | JSX.ArrayElement;
+type Root = Element[] | Element | Comment | JSX.ArrayElement | Text;
 
 
 class SignalDetermine {
@@ -15,41 +15,29 @@ class SignalDetermine {
 
   #disentangles: Set<Disentangle> = new Set();
 
-  #mount: () => void = () => void 0;
+  #mounts: Set<Mount> = new Set();
 
   #test = () => {
     const node = [void 0, null, false];
+    const text = ['string', 'number'];
     const root = this.#view();
-    let element = root.render();
-    
-    if (this.#disentangles.size) {
-      for (const disentangle of this.#disentangles) {
-        disentangle();
-      }
-      this.#disentangles = new Set();
-    }
-    if (node.includes(element as unknown as null)) {
+    if (node.includes(root as unknown as null)) {
       return document.createComment('determine');
     }
-    if (element instanceof SignalComponent) {
-      element = element.render();
+    const cycle = cycles.at(-1)
+    for(const disentangle of cycle?.disentangles ?? []){
+      this.#disentangles.add(disentangle);
     }
-    if (root?.disentangles?.size) {
-      for (const disentangle of root?.disentangles) {
-        this.#disentangles.add(disentangle)
-      }
+    for(const mount of cycle?.mounts ?? []) {
+      this.#mounts.add(mount);
     }
-    this.#mount = () => {
-      if (root?.mounts?.size) {
-        for (const mount of root?.mounts) mount();
-        this.#mount = () => void 0;
-      }
-    }
-    return element;
+    if (text.includes(typeof root)) document.createTextNode(root);
+
+    return root;
   }
 
   constructor(view) {
-    this.#view = () => createComponent(() => view(), {})
+    this.#view = view;
   }
 
   // #contains = (node) => {
@@ -61,13 +49,15 @@ class SignalDetermine {
   once = () => {
     const node = this.#test();
     this.#root = node as any;
+    console.log(node);
+    
     return node;
   }
 
   render = () => {
-    const node = this.#test();
-    const fragment = node instanceof SignalTabulate ?
-      node.once() : node instanceof Array ? node : [node];
+    const node = this.#test();   
+    
+    const fragment = node instanceof Array ? node : [node];
     if (this.#root instanceof Array) {
       const app: any = this.#root.at(-1);
       for (const view of this.#root.slice(0, -1)) {
@@ -75,12 +65,14 @@ class SignalDetermine {
       }
       app.replaceWith(...fragment as []);
       this.#root = fragment as any;
-    } else {
-      // this.#contains(this.#root);
-      (this.#root as Element).replaceWith(node as Element);
+    } else {      
+      (this.#root as Element).replaceWith(...fragment as []);
       this.#root = node as any;
     }
-    this.#mount();
+    for(const disentangle of this.#disentangles){
+      disentangle();
+    }
+    this.#disentangles.clear();
   }
 }
 

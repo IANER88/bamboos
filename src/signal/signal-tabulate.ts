@@ -10,7 +10,7 @@ export default class SignalTabulate {
   #latest: HTMLElement[] = [];
 
   #generate = (latest) => {
-    return latest.map((item) => ({ key: item?.dataset?.key }))
+    return latest?.map?.((item) => ({ key: item?.dataset?.key }))
   }
 
   #contains = (node) => {
@@ -77,12 +77,13 @@ export default class SignalTabulate {
   }
 
   render = () => {
-    const comment = this.#test();
+    const comment = this.#test();  
+        // const some = this.#oldest.some(this.#contains);  
     if (this.#oldest instanceof Comment) {
-      if (!this.#latest.length) return false;
+      if (!this.#latest.length) return true;
       this.#oldest.replaceWith(...this.#latest);
       this.#oldest = this.#latest;
-      return false;
+      // return some;
     }
     if (!this.#latest.length) {
       const diff = this.#oldest.slice(1, this.#oldest.length);
@@ -90,11 +91,11 @@ export default class SignalTabulate {
         node.remove();
       }
       this.#oldest.at(0)?.replaceWith(comment as unknown as Comment);
-      this.#oldest = comment as any;
-      return false;
+      this.#oldest = comment as any
+      // return some;
     }
     this.#add();
     this.#remove();
-    return this.#oldest.every(this.#contains)
+    // return some;
   }
 }
