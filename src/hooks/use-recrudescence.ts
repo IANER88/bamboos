@@ -5,19 +5,19 @@ export type RecrudescenceFn = {
   deps: Set<Set<RecrudescenceFn>>
 }
 
-const stack: RecrudescenceFn[] = [];
+export const recrudescence_stack: RecrudescenceFn[] = [];
 
-const useRecrudescence = (recrudescence: Recrudescence) => {
+export default  function useRecrudescence(recrudescence: Recrudescence) {
   const rely = () => {
     for (const dep of effect.deps) {
       dep.delete(effect);
     }
     effect.deps.clear();
-    stack.push(effect);
+    recrudescence_stack.push(effect);
     try {
       recrudescence();
     } finally {
-      stack.pop();
+      recrudescence_stack.pop();
     }
   }
 
@@ -27,10 +27,3 @@ const useRecrudescence = (recrudescence: Recrudescence) => {
   }
   rely();
 }
-
-const getRecrudescence = () => stack;
-
-export {
-  useRecrudescence,
-  getRecrudescence
-};

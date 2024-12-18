@@ -4,19 +4,19 @@ type Attribute = {
   subscriber: null | SignalAttribute
 }
 
-export const attributes: Attribute[] = [];
+export const attribute_stack: Attribute[] = [];
 
 export default function createAttribute(attribute) {
 
   const execute = () => {
-    attributes.push(executes);
+    attribute_stack.push(executes);
     try {
       attribute()
       const subscriber = new SignalAttribute(attribute);
       executes.subscriber = subscriber;
       return subscriber
     } finally {
-      attributes.pop();
+      attribute_stack.pop();
     }
   }
 

@@ -1,4 +1,4 @@
-import { roots } from '@/utils/create-root';
+import { root_stack } from '@/utils/create-root';
 import lodash from 'lodash';
 
 export default class SignalTabulate {
@@ -14,7 +14,7 @@ export default class SignalTabulate {
   }
 
   #contains = (node) => {
-    const root = roots.at(-1);
+    const root = root_stack.at(-1);
     const element = root?.root?.contains(node);
     return element;
   }

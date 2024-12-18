@@ -1,5 +1,4 @@
 import { Disentangle, disentangles } from "@/hooks/use-disentangle";
-import SignalTabulate from "./signal-tabulate";
 import { JSX } from "@/types/jsx-runtime";
 import createComponent, { cycles } from "@/utils/create-component";
 import { Mount } from "@/hooks/use-mount";

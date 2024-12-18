@@ -5,21 +5,21 @@ type Determines = {
   subscriber: null | SignalDetermine;
 }
 
-export const determines: Determines[] = [];
+export const determine_stack: Determines[] = [];
 
 type Condition = () => JSX.Element;
 
 export default function createDetermine(condition: Condition) {
 
   const execute = () => {
-    determines.push(executes);
+    determine_stack.push(executes);
     try {
       condition();
       const subscriber = new SignalDetermine(condition);
       executes.subscriber = subscriber;
       return subscriber.once();
     } finally {
-      determines.pop();
+      determine_stack.pop();
     }
   }
 

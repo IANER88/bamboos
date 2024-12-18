@@ -1,4 +1,4 @@
-import { roots } from "@/utils/create-root";
+import { root_stack } from "@/utils/create-root";
 
 export default class SignalContent {
 
@@ -33,7 +33,7 @@ export default class SignalContent {
   }
 
   #contains = () => {
-    const root = roots.at(-1);
+    const root = root_stack.at(-1);
     const element = root?.root?.contains(this.#root as Element);
     return element;
   }

@@ -6,6 +6,6 @@ export const disentangles: Disentangle[] = [];
  * @function useDisentangle
  * unload
  */
-export const useDisentangle = (disentangle: Disentangle) => {
+export default function useDisentangle(disentangle: Disentangle) {
   disentangles.push(disentangle)
 }

@@ -1,5 +1,5 @@
-import { roots } from '@/utils/create-root';
+import { root_stack } from '@/utils/create-root';
 export default function useId() {
-  const root = roots.at(-1);
+  const root = root_stack.at(-1);
   return root?.id();
 }

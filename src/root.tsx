@@ -3,7 +3,21 @@ import './root.css'
 export default function Root() {
 
   return (
-    <About />
+    <div>
+      <input on:input={(event) => input.value = event.target.value} value={input.value} />
+      <div style={{
+        display: 'flex',
+        gap: '20px',
+      }}>
+        <button on:click={() => count.value++}>{count.value}</button>
+        <button on:click={() => show.value = !show.value}>show</button>
+        <button on:click={() => table.value.pop()}>pop</button>
+        <button on:click={() => table.value.push({
+          id: crypto.randomUUID(),
+          name: 1,
+        })}>push</button>
+      </div>
+    </div >
   )
 }
 
@@ -29,21 +43,6 @@ function About() {
 
   return (
     <div>
-      <Home value={count.value} count="11">
-        {count.value}
-        <div>
-          {
-            table.map((item) => <div use:key={item.id} id={count.value}>1</div>)
-          }
-        </div>
-      </Home>
-      <div>
-        {
-          show.value ?
-            table.map((item) => <div use:key={item.id}>1</div>)
-            : input.value
-        }
-      </div>
       <input on:input={(event) => input.value = event.target.value} value={input.value} />
       <div style={{
         display: 'flex',
