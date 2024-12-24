@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import { join } from 'path'
 import dts from 'vite-plugin-dts'
 import path from 'path';
-import soften from './soften';
+import bamboos from './bamboos';
 import { terser } from 'rollup-plugin-terser';
 export default defineConfig({
   plugins: [
@@ -10,7 +10,7 @@ export default defineConfig({
       include: ['src/**/*'],
       copyDtsFiles: true,
     }),
-    soften(),
+    bamboos(),
   ],
   resolve: {
     alias: {
@@ -21,8 +21,8 @@ export default defineConfig({
     outDir: 'dist',
     lib: {
       entry: path.resolve(__dirname, 'src/index.ts'),
-      name: 'soften',
-      fileName: 'soften',
+      name: 'bamboos',
+      fileName: 'bamboos',
       formats: ['es', 'cjs'],
     },
     minify: 'terser',

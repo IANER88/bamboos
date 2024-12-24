@@ -12,9 +12,12 @@ type ISubscribe = {
   determine: Set<Execute>;
 }
 
-export default function useSignal<S>(initialState?: S) {
+interface ISignal<S> {
+  get value(): S;
+  set value(value);
+}
 
-  const map: Set<Execute> = new Set();
+export default function useSignal<S>(initialState?: S): ISignal<S> {
 
   const state = {
     value: initialState,
@@ -31,8 +34,8 @@ export default function useSignal<S>(initialState?: S) {
     determine: new Set(),
   }
 
-  return {
-    get value() {
+  const on = {
+    get: () => {
       const effect = recrudescence_stack.at(-1)
       if (effect) {
         recrudescence.add(effect);
@@ -45,10 +48,8 @@ export default function useSignal<S>(initialState?: S) {
       if (content) subscribe.content.add(content);
       if (determine) subscribe.determine.add(determine);
       if (attribute) subscribe.attribute.add(attribute);
-      return state.value;
     },
-    set value(value) {
-      state.value = value;
+    set: () => {
       const observers = Object.values(subscribe).flatMap((item) => [...item]);
       for (const observer of observers) {
         if (observer.subscriber) {
@@ -66,6 +67,17 @@ export default function useSignal<S>(initialState?: S) {
           // }
         };
       }
+    }
+  }
+
+  return {
+    get value() {
+      on.get();
+      return state.value;
+    },
+    set value(value) {
+      state.value = value;
+      on.set();
     },
     // map: (fn) => state.map(fn),
   }

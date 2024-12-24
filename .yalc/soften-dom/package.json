@@ -1,5 +1,5 @@
 {
-  "name": "soften-dom",
+  "name": "bamboos-dom",
   "private": false,
   "version": "0.0.0",
   "type": "module",
@@ -8,13 +8,13 @@
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
-  "main": "./dist/soften-dom.cjs",
-  "module": "./dist/soften-dom.js",
+  "main": "./dist/bamboos-dom.cjs",
+  "module": "./dist/bamboos-dom.js",
   "types": "./dist/src/index.d.ts",
   "exports": {
     ".": {
-      "require": "./dist/soften-dom.cjs",
-      "import": "./dist/soften-dom.js",
+      "require": "./dist/bamboos-dom.cjs",
+      "import": "./dist/bamboos-dom.js",
       "types": "./dist/src/index.d.ts"
     },
     "./style": "./dist/style.css"

@@ -9,14 +9,22 @@ export type Component = [
 ];
 
 export default function createElement(tag: string, attribute, ...children) {
+
   const execute = () => {
     const element = document.createElement(tag);
     const attr = Object.keys(attribute ?? {});
 
     if (attr?.length) {
+      const on = /^on:(.*)/;
       for (const key of Object.keys(attribute)) {
-        const view = attribute[key]
-        view.once(element, key);
+        if (on.test(key)) {
+          attribute[key]?.apply?.(element);
+        }
+        if (typeof attribute[key] === 'function'){
+          attribute[key]
+        }else{
+          element.setAttribute(key, attribute[key])
+        }
       }
     }
     if (children.length) {

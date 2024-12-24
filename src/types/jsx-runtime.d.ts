@@ -1163,7 +1163,7 @@ export namespace JSX {
     required?: boolean | undefined;
     rows?: number | string | undefined;
     value?: string | string[] | number | undefined;
-    wrap?: "hard" | "soft" | "off" | undefined;
+    wrap?: "hard" | "bamboos" | "off" | undefined;
     maxLength?: number | string | undefined;
     minLength?: number | string | undefined;
     readOnly?: boolean | undefined;

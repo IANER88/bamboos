@@ -1,7 +1,7 @@
 {
-  "name": "soften-js",
+  "name": "bamboos",
   "private": false,
-  "version": "1.1.5",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,22 +13,22 @@
     "typescript": "^5.5.3",
     "vite": "^5.4.1"
   },
-  "main": "./dist/soften.cjs",
-  "module": "./dist/soften.js",
+  "main": "./dist/bamboos.cjs",
+  "module": "./dist/bamboos.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "require": "./dist/soften.cjs",
-      "import": "./dist/soften.js",
+      "require": "./dist/bamboos.cjs",
+      "import": "./dist/bamboos.js",
       "types": "./dist/index.d.ts"
     },
     "./jsx-runtime": {
       "types": "./dist/types/index.d.ts",
-      "default": "./dist/soften.js"
+      "default": "./dist/bamboos.js"
     },
     "./jsx-dev-runtime": {
       "types": "./dist/types/index.d.ts",
-      "default": "./dist/soften.js"
+      "default": "./dist/bamboos.js"
     }
   },
   "files": [

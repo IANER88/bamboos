@@ -1,14 +1,10 @@
-type Options = {
-  event: string;
-  func: () => void;
-  element: Element;
-}
+type IEvent = [string, () => () => unknown]
 
-export default function createEvent(options: Options) {
-  const {
-    event,
-    func,
-    element,
-  } = options;
-  element[event] = func;
+export default function createEvent(this: Element, listener: IEvent) {
+  
+  const [name, event] = listener;
+  
+  const type = name.split('-').join('');
+
+  this.addEventListener(type, event())
 }

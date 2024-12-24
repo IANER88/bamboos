@@ -5,7 +5,7 @@ import createDetermine from './create-determine'
 import createTabulate from './create-tabulate'
 import createContent from './create-content'
 import createAttribute from './create-attribute'
-
+import createEvent from './create-event'
 export {
   createRoot,
   createElement,
@@ -13,5 +13,6 @@ export {
   createDetermine,
   createTabulate,
   createContent,
+  createEvent,
   createAttribute
 }
