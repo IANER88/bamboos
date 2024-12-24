@@ -1,4 +1,4 @@
-import type { Execute } from "@/signal";
+import type {Execute} from "@/signal";
 
 export const observers: Execute[] = [];
 
@@ -15,14 +15,10 @@ export default function createElement(tag: string, attribute, ...children) {
     const attr = Object.keys(attribute ?? {});
 
     if (attr?.length) {
-      const on = /^on:(.*)/;
       for (const key of Object.keys(attribute)) {
-        if (on.test(key)) {
+        if (typeof attribute[key] === 'function') {
           attribute[key]?.apply?.(element);
-        }
-        if (typeof attribute[key] === 'function'){
-          attribute[key]
-        }else{
+        } else {
           element.setAttribute(key, attribute[key])
         }
       }

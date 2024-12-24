@@ -1,18 +1,6 @@
-import createRoot from './create-root'
-import createElement from './create-element'
-import createComponent from './create-component'
-import createDetermine from './create-determine'
-import createTabulate from './create-tabulate'
-import createContent from './create-content'
-import createAttribute from './create-attribute'
-import createEvent from './create-event'
-export {
-  createRoot,
-  createElement,
-  createComponent,
-  createDetermine,
-  createTabulate,
-  createContent,
-  createEvent,
-  createAttribute
-}
+export {default as createRoot} from "./create-root";
+export {default as createElement} from "./create-element";
+export {default as createComponent} from "./create-component";
+export {default as createExpression} from "./create-expression";
+export {default as createAttribute} from "./create-attribute";
+export {default as createEvent} from "./create-event"

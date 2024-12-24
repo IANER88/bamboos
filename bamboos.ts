@@ -1,6 +1,6 @@
 import * as babel from '@babel/core';
 import generator from '@babel/generator'
-import type { Plugin } from 'vite'
+import type {Plugin} from 'vite'
 
 export default function BamboosJSX(): Plugin {
   const virtual = 'virtual:bamboos-dom'
@@ -33,14 +33,14 @@ export default function BamboosJSX(): Plugin {
 
       if (!tsx) return;
 
-      const effect = ({ types }) => {
+      const effect = ({types}) => {
 
         const CallExpression = (path) => {
 
         }
 
         const Program = (path) => {
-          const { node: { body } } = path;
+          const {node: {body}} = path;
           body.unshift(
             babel.types.importDeclaration(
               [
@@ -61,8 +61,8 @@ export default function BamboosJSX(): Plugin {
 
           if (node.type === 'JSXExpressionContainer') {
 
-            const createContent = types.callExpression(
-              types.identifier('Bamboos.createContent'),
+            const createExpression = types.callExpression(
+              types.identifier('Bamboos.createExpression'),
               [
                 types.arrowFunctionExpression(
                   [],
@@ -71,7 +71,7 @@ export default function BamboosJSX(): Plugin {
               ]
             )
 
-            return createContent;
+            return createExpression;
           }
           if (node.type === 'JSXElement') {
             const name = node.openingElement.name.name;
@@ -92,41 +92,46 @@ export default function BamboosJSX(): Plugin {
                   const name = namespace_name ?
                     namespace.join(':') : attribute.name.name
 
-                  const createAttribute = () => {
-                    const container = types.isJSXExpressionContainer(attribute.value);
-                    return container ? types.callExpression(
-                      types.identifier(
-                        'Bamboos.createAttribute'
-                      ),
-                      [
-                        types.arrowFunctionExpression(
-                          [],
-                          attribute?.value?.expression
-                        )
-                      ]) : attribute?.value
-                  }
+                  const container = types.isJSXExpressionContainer(attribute.value);
 
 
-                  const createEvent = () => {
-                    const event = types.identifier('Bamboos.createEvent')
+                  const create = (name: string) => {
+                    const createEvent = () => {
+                      return types.arrayExpression(
+                        [
+                          types.stringLiteral(attribute?.name?.name?.name),
+                          types.arrowFunctionExpression(
+                            [],
+                            attribute?.value?.expression
+                          )
+                        ]
+                      )
+                    };
+
+                    const createAttribute = () => {
+                      return types.arrayExpression(
+                        [
+                          types.stringLiteral(attribute?.name?.name),
+                          types.arrowFunctionExpression(
+                            [],
+                            attribute?.value?.expression
+                          )
+                        ]
+                      )
+                    }
                     const bind = types.callExpression(
                       types.memberExpression(
-                        event,
+                        types.identifier(name),
                         types.identifier('apply'),
                       ),
                       [
                         types.thisExpression(),
-                        types.arrayExpression([
-                          types.arrayExpression(
-                            [
-                              types.stringLiteral(attribute?.name?.name?.name),
-                              types.arrowFunctionExpression(
-                                [],
-                                attribute?.value?.expression
-                              )
-                            ]
-                          )
-                        ])
+                        types.arrayExpression(
+                          [
+                            name === 'Bamboos.createEvent' ? createEvent() :
+                              createAttribute()
+                          ]
+                        )
                       ]
                     )
 
@@ -143,12 +148,12 @@ export default function BamboosJSX(): Plugin {
                     )
                   }
 
-
+                  console.log(name, container)
                   return types.objectProperty(
                     types.stringLiteral(name),
                     namespace_name && on.test(namespaced)
-                      ? createEvent() :
-                      createAttribute()
+                      ? create('Bamboos.createEvent') :
+                      container ? create('Bamboos.createAttribute') : attribute.value
                   )
                 }),
               ]

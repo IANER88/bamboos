@@ -4,68 +4,43 @@ type Execute = {
 
 export const content_stack: Execute[] = [];
 
-type IContent = null | number | false | string | [];
+type i_content = null | number | false | string | [];
 
-export default function createContent(content: () => string | number | []) {
+export default function createContent(content: string | number | []) {
+  let root: HTMLElement | null = null;
+  let latest = null;
 
-  const render = () => {
-    let root: HTMLElement | null = null;
-    let latest: IContent = null;
+  let oldest = null;
 
-    let oldest: IContent = null;
-
-    const ask = () => {
-      latest = content();
-      return latest;
-    }
-
-    const test = (content) => {
-      oldest = latest;
-      const node = [null, void 0, false].includes(content);
-      if (node) return document.createComment('content');
-      if (content instanceof Array) {
-        return content.map(test);
-      }
-      return document.createTextNode(content);
-    }
-
-    return () => {
-      const latest = ask();
-      if (root === null) {
-        root = test(latest);
-        return root;
-      };
-      if (!Object.is(oldest, latest)) {
-        // const element = this.#contains();
-        const node = test(latest);
-        root?.replaceWith(node)
-        root = node as any;
-        // return element;
-      }
-    }
+  const ask = () => {
+    latest = content;
+    return latest;
   }
 
-  const execute = () => {
-    content_stack.push(executes);
-    try {
-      const node = content();
-      if (Array.isArray(node)) {
-        content_stack.pop();
-        return node;
-      }
-      const subscriber = render();
+  const test = (content) => {
+    oldest = latest;
+    const node = [null, void 0, false].includes(content);
+    if (node) return document.createComment('content');
+    if (content instanceof Array) {
+      return content.map(test);
+    }
+    return document.createTextNode(content);
+  }
 
-      executes.subscriber = subscriber;
 
-      return subscriber();
-    } finally {
-      content_stack.pop();
+  return () => {
+    const latest = ask();
+    if (root === null) {
+      root = test(latest);
+      return root;
+    }
+    ;
+    if (!Object.is(oldest, latest)) {
+      // const element = this.#contains();
+      const node = test(latest);
+      root?.replaceWith(node)
+      root = node as any;
+      // return element;
     }
   }
-
-  const executes: Execute = {
-    subscriber: () => null,
-  }
-
-  return execute();
 }

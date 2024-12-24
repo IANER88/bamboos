@@ -1,8 +1,7 @@
-import SignalDetermine from "@/signal/signal-determine";
-import { JSX } from "@/types/jsx-runtime";
+import {JSX} from "@/types/jsx-runtime";
 
 type Determines = {
-  subscriber: null | SignalDetermine;
+  subscriber: null;
 }
 
 export const determine_stack: Determines[] = [];
@@ -15,7 +14,7 @@ export default function createDetermine(condition: Condition) {
     determine_stack.push(executes);
     try {
       condition();
-      const subscriber = new SignalDetermine(condition);
+//      const subscriber = new SignalDetermine(condition);
       executes.subscriber = subscriber;
       return subscriber.once();
     } finally {
