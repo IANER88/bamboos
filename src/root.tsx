@@ -11,10 +11,24 @@ export default function Root() {
       id: crypto.randomUUID(),
       name: 'name',
     }
-  ])
+  ]);
+  const data = useSignal({
+    name: {
+      title: 'title',
+    },
+    list: [
+      {
+        title: 'list-title'
+      }
+    ]
+  });
+
+  console.log(data)
 
   const onclick = () => {
-    count.value++
+    count.value++;
+    console.log(count.value);
+    
   }
 
   const onchange = (event) => {
@@ -25,7 +39,15 @@ export default function Root() {
     content.value = 'name'
   };
 
+  const onpush = () => {
+    list.value.push({
+      id: crypto.randomUUID(),
+      name: 'push',
+    });
+    console.log(list.value)
+  }
 
+  
   return (
     <div id="root">
       <div class="element-box">
@@ -37,6 +59,7 @@ export default function Root() {
       </div>
       <div class="button-box">
         <button on:click={onclick}>count: {count.value}</button>
+        <button on:click={onpush}>push</button>
         <button on:click={onreset}>
           重置
         </button>

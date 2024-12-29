@@ -1,6 +1,4 @@
-import type {Execute} from "@/signal";
-
-export const observers: Execute[] = [];
+export const observers = [];
 
 export type Component = [
   tag: string,

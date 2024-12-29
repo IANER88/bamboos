@@ -1,5 +1,9 @@
 import {differenceBy} from 'lodash'
 
+
+
+export const list_stack:[] = [];
+
 export default function createList(tabulate) {
   let oldest = []; // 存儲舊節點
   let latest = []; // 存儲新節點
@@ -61,6 +65,7 @@ export default function createList(tabulate) {
 
   return () => {
     const comment = test();
+    console.log(comment)
     // const some = this.#oldest.some(this.#contains);
     if (oldest instanceof Comment) {
       if (!latest.length) return true;

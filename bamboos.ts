@@ -85,33 +85,18 @@ export default function BamboosJSX(): Plugin {
                     attribute?.name?.namespace?.name,
                     attribute?.name?.name?.name
                   ]
-                  const [namespaced] = namespace;
-                  const namespace_name = types.isJSXNamespacedName(attribute.name);
 
-                  const on = /^on/;
+                  const namespace_name = types.isJSXNamespacedName(attribute.name);
                   const name = namespace_name ?
                     namespace.join(':') : attribute.name.name
 
                   const container = types.isJSXExpressionContainer(attribute.value);
-
-
-                  const create = (name: string) => {
-                    const createEvent = () => {
-                      return types.arrayExpression(
-                        [
-                          types.stringLiteral(attribute?.name?.name?.name),
-                          types.arrowFunctionExpression(
-                            [],
-                            attribute?.value?.expression
-                          )
-                        ]
-                      )
-                    };
-
+                  const create = (title: string) => {
                     const createAttribute = () => {
+
                       return types.arrayExpression(
                         [
-                          types.stringLiteral(attribute?.name?.name),
+                          types.stringLiteral(name),
                           types.arrowFunctionExpression(
                             [],
                             attribute?.value?.expression
@@ -119,17 +104,17 @@ export default function BamboosJSX(): Plugin {
                         ]
                       )
                     }
+
                     const bind = types.callExpression(
                       types.memberExpression(
-                        types.identifier(name),
+                        types.identifier(title),
                         types.identifier('apply'),
                       ),
                       [
                         types.thisExpression(),
                         types.arrayExpression(
                           [
-                            name === 'Bamboos.createEvent' ? createEvent() :
-                              createAttribute()
+                            createAttribute()
                           ]
                         )
                       ]
@@ -148,12 +133,9 @@ export default function BamboosJSX(): Plugin {
                     )
                   }
 
-                  console.log(name, container)
                   return types.objectProperty(
                     types.stringLiteral(name),
-                    namespace_name && on.test(namespaced)
-                      ? create('Bamboos.createEvent') :
-                      container ? create('Bamboos.createAttribute') : attribute.value
+                    container ? create('Bamboos.createAttribute') : attribute.value
                   )
                 }),
               ]

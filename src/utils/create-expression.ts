@@ -3,20 +3,21 @@ import createList from "./create-list"
 
 type content = null | number | false | string | [];
 type list = [];
-type  IExpression = () => content | list;
-const expression_stack = [];
+type IExpression = () => content | list;
+export const expression_stack = [];
 export default function createExpression(expression: IExpression) {
 	const execute = () => {
 		expression_stack.push(executes);
 		try {
 			const node = expression();
-			console.log(node)
 			if (Array.isArray(node)) {
 				expression_stack.pop();
 				return node;
 			}
-			const subscriber = node instanceof Array ? createList(node) : createContent(node);
 
+			const subscriber = node instanceof Array ?
+				createList(expression) :
+				createContent(expression);
 			executes.subscriber = subscriber;
 
 			return subscriber();

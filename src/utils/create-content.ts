@@ -4,21 +4,27 @@ type Execute = {
 
 export const content_stack: Execute[] = [];
 
-type i_content = null | number | false | string | [];
+type State = {
+  root: HTMLElement | null;
+  latest: null | string;
+  oldest: null | string;
+}
 
 export default function createContent(content: string | number | []) {
-  let root: HTMLElement | null = null;
-  let latest = null;
 
-  let oldest = null;
+  const state: State = {
+    root: null,
+    latest: null,
+    oldest: null,
+  }
 
   const ask = () => {
-    latest = content;
-    return latest;
+    state.latest = content;
+    return state.latest;
   }
 
   const test = (content) => {
-    oldest = latest;
+    state.oldest = state.latest;
     const node = [null, void 0, false].includes(content);
     if (node) return document.createComment('content');
     if (content instanceof Array) {
@@ -30,16 +36,16 @@ export default function createContent(content: string | number | []) {
 
   return () => {
     const latest = ask();
-    if (root === null) {
-      root = test(latest);
-      return root;
+    if (state.root === null) {
+      state.root = test(latest);
+      return state.root;
     }
-    ;
-    if (!Object.is(oldest, latest)) {
+
+    if (!Object.is(state.oldest, latest)) {
       // const element = this.#contains();
       const node = test(latest);
-      root?.replaceWith(node)
-      root = node as any;
+      state.root?.replaceWith(node)
+      state.root = node as any;
       // return element;
     }
   }

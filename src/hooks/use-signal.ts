@@ -1,84 +1,96 @@
-import { recrudescence_stack, RecrudescenceFn } from "./use-recrudescence";
-import { content_stack } from '@/utils/create-content';
-import { determine_stack } from '@/utils/create-determine';
-import { attribute_stack } from "@/utils/create-attribute";
+import { RecrudescenceFn } from "@/hooks/use-recrudescence";
+import { content_stack } from "@/utils/create-content";
+import { expression_stack } from "@/utils/create-expression";
+import { list_stack } from "@/utils/create-list";
+
 
 export type Execute = {
   subscriber: () => Element | null;
 }
-type ISubscribe = {
-  content: Set<Execute>;
-  attribute: Set<Execute>;
-  determine: Set<Execute>;
-}
 
 interface ISignal<S> {
-  get value(): S;
-  set value(value);
+  value: S;
+};
+
+
+const create = (initialState) => {
+
+  let state = initialState;
+
+  if (
+    initialState === null ||
+    typeof initialState !== 'object'
+  ) {
+    return initialState;
+  }
+
+  if (initialState instanceof Array) {
+    state = state.map(create);
+  } else {
+    state = Object.fromEntries(
+      Object.keys(state).map(
+        (key) => [
+          key,
+          create(state[key])
+        ]
+      )
+    );
+  }
+
+  return createSignal(state)
 }
 
-export default function useSignal<S>(initialState?: S): ISignal<S> {
+const createSignal = (initialState) => {
 
-  const state = {
-    value: initialState,
-  }
-
-  const recrudescence: Set<{
-    rely: () => void;
-    deps: Set<Set<RecrudescenceFn>>;
-  }> = new Set();
-
-  const subscribe: ISubscribe = {
+  const observes = {
     content: new Set(),
-    attribute: new Set(),
-    determine: new Set(),
+    list: new Set(),
+    expression: new Set(),
   }
 
-  const on = {
-    get: () => {
-      const effect = recrudescence_stack.at(-1)
-      if (effect) {
-        recrudescence.add(effect);
-        effect.deps.add(recrudescence);
-      }
-      const content = content_stack.at(-1);
-      const determine = determine_stack.at(-1);
-      const attribute = attribute_stack.at(-1);
+  const createGet = () => {
+    const content = content_stack.at(-1);
+    const list = list_stack.at(-1);
+    const expression = expression_stack.at(-1);
+    
+    if (content) observes.content.add(content);
+    if (list) observes.list.add(list);
+    if (expression) observes.expression.add(expression)
+  }
 
-      if (content) subscribe.content.add(content);
-      if (determine) subscribe.determine.add(determine);
-      if (attribute) subscribe.attribute.add(attribute);
-    },
-    set: () => {
-      const observers = Object.values(subscribe).flatMap((item) => [...item]);
-      for (const observer of observers) {
-        if (observer.subscriber) {
-          const contains = observer?.subscriber?.();
-          // if (!contains) {
-          //   if (observer.subscriber instanceof SignalAttribute)
-          //     attribute.delete(observer);
-          //   // if (observer.subscriber instanceof SignalTabulate)
-          //   //   this.#map.delete(observer);
-          //   if (observer.subscriber instanceof SignalContent)
-          //     content.delete(observer)
-          //   // if (observer.subscriber instanceof SignalDetermine) {
-          //   //   this.#content.delete(observer)
-          //   // }
-          // }
-        };
-      }
+  const createSet = () => {
+    const subscribes = [
+      ...observes.content,
+      ...observes.list,
+      ...observes.expression
+    ]
+    for(const subscribe of subscribes){
+      subscribe.subscriber()
     }
   }
 
-  return {
-    get value() {
-      on.get();
-      return state.value;
+  return new Proxy(initialState, {
+    get(target, key) {
+      createGet();
+      return target[key];
     },
-    set value(value) {
-      state.value = value;
-      on.set();
-    },
-    // map: (fn) => state.map(fn),
-  }
+    set(target, key, value) {
+      target[key] = value;
+      createSet();
+      return true;
+    }
+  });
+}
+
+/** 信號 **/
+export default function useSignal<S>(initialState?: S): ISignal<S> {
+
+  const signal = {
+    value: typeof initialState === 'object' &&
+      initialState !== null ?
+      create(initialState) :
+      initialState,
+  };
+
+  return createSignal(signal);
 }
