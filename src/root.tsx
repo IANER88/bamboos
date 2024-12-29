@@ -9,7 +9,11 @@ export default function Root() {
   const list = useSignal([
     {
       id: crypto.randomUUID(),
-      name: 'name',
+      name: 'title',
+    },
+    {
+      id: crypto.randomUUID(),
+      name: 'title',
     }
   ]);
   const data = useSignal({
@@ -23,12 +27,10 @@ export default function Root() {
     ]
   });
 
-  console.log(data)
-
   const onclick = () => {
     count.value++;
     console.log(count.value);
-    
+
   }
 
   const onchange = (event) => {
@@ -47,19 +49,20 @@ export default function Root() {
     console.log(list.value)
   }
 
-  
+
   return (
     <div id="root">
       <div class="element-box">
         <input on:input={onchange} value={content.value}/>
         <span>{content.value}</span>
         {
-          list.value.map(item => <div use:key={item.id}>{item.name}</div>)
+          list.value.map(item => <div use:key={item.id}>{item.name}{count.value}</div>)
         }
       </div>
       <div class="button-box">
         <button on:click={onclick}>count: {count.value}</button>
         <button on:click={onpush}>push</button>
+        <button on:click={() => list.value.pop()}>pop</button>
         <button on:click={onreset}>
           重置
         </button>

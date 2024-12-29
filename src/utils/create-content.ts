@@ -6,11 +6,14 @@ export const content_stack: Execute[] = [];
 
 type State = {
   root: HTMLElement | null;
-  latest: null | string;
-  oldest: null | string;
+  latest: null | ReturnType<Content>;
+  oldest: null | ReturnType<Content>;
 }
 
-export default function createContent(content: string | number | []) {
+type Content = () => string | number | void | boolean | null | [];
+
+/**/
+export default function createContent(content: Content) {
 
   const state: State = {
     root: null,
@@ -18,12 +21,7 @@ export default function createContent(content: string | number | []) {
     oldest: null,
   }
 
-  const ask = () => {
-    state.latest = content;
-    return state.latest;
-  }
-
-  const test = (content) => {
+  const test = (content: ReturnType<Content>) => {
     state.oldest = state.latest;
     const node = [null, void 0, false].includes(content);
     if (node) return document.createComment('content');
@@ -33,20 +31,21 @@ export default function createContent(content: string | number | []) {
     return document.createTextNode(content);
   }
 
-
-  return () => {
-    const latest = ask();
+  const onchange = () => {
+    state.latest = content();
     if (state.root === null) {
-      state.root = test(latest);
+      state.root = test(state.latest);
       return state.root;
     }
 
-    if (!Object.is(state.oldest, latest)) {
+    if (!Object.is(state.oldest, state.latest)) {
       // const element = this.#contains();
-      const node = test(latest);
+      const node = test(state.latest);
       state.root?.replaceWith(node)
       state.root = node as any;
       // return element;
     }
   }
+
+  return onchange;
 }

@@ -1,17 +1,28 @@
 import {differenceBy} from 'lodash'
 
 
+export const list_stack: [] = [];
 
-export const list_stack:[] = [];
+type List = () => HTMLElement[];
+type State = {
+  oldest: ReturnType<List> | Comment;
+  latest: ReturnType<List> | Comment;
+}
+export default function createList(list: List) {
 
-export default function createList(tabulate) {
-  let oldest = []; // 存儲舊節點
-  let latest = []; // 存儲新節點
+  const state: State = {
+    // 存儲舊節點
+    oldest: [],
+    // 存儲新節點
+    latest: [],
+  };
+
+  let once = true;
 
   // 創建新節點
   const create = () => {
-    latest = tabulate();
-    return latest;
+    state.latest = list();
+    return state.latest;
   }
   //比對節點
   const test = () => {
@@ -19,42 +30,44 @@ export default function createList(tabulate) {
     if (list.length) {
       return list;
     }
-    return document.createComment('tabulate');
+    return document.createComment('list');
   }
 
+  /*刪除*/
   const remove = () => {
-    const transformation = [latest, oldest].map(generate)
-    const diff = differenceBy(...transformation, 'key');
+    const [latest, oldest] = [state.latest, state.oldest].map(generate);
+    const diff = differenceBy(oldest, latest, 'key');
     if (diff.length) {
-      const [, _oldest] = transformation;
-      const [old] = diff ?? [];
-      const previous = _oldest.findIndex(item => item.key === old.key);
-      oldest[previous].remove();
-      oldest.splice(previous, diff.length)
+      const [old] = diff ?? []
+      const previous = oldest.findIndex((item) => item.key === old.key);
+      state.oldest?.[previous]?.remove?.();
+      state.oldest.splice(previous, diff.length);
     }
   }
+
+  /*添加*/
   const add = () => {
-    const transformation = [oldest, latest].map(generate);
-    const diff = lodash.differenceBy(...transformation, 'key');
+    const [oldest, latest] = [state.oldest, state.latest].map(generate);
+    const diff = differenceBy(latest, oldest, 'key');
 
     if (diff.length) {
-      const [old] = diff ?? [];
-      const [, _latest] = transformation;
+      const [old] = diff ?? []
       const previous = latest.findIndex((item) => item.key === old.key);
       if (previous === 0) {
-        const next = latest.at(previous);
+        const next = state.latest.at(previous);
         if (next) {
-          oldest[previous].insertAdjacentElement('beforebegin', next);
-          oldest.splice(previous, 0, next);
+          state.oldest?.[previous]?.insertAdjacentElement?.('beforebegin', next);
+          state.oldest.splice(previous, 0, next);
         }
         return;
       }
-      const next = latest.at(previous);
+      const next = state.latest.at(previous);
       if (next) {
-        oldest[previous - 1].insertAdjacentElement('afterend', next);
-        oldest.splice(previous, 0, next);
+        state.oldest[previous - 1].insertAdjacentElement?.('afterend', next);
+        state.oldest.splice(previous, 0, next);
       }
     }
+
   }
 
   const generate = (latest) => {
@@ -63,26 +76,37 @@ export default function createList(tabulate) {
     }))
   }
 
-  return () => {
+  /*綁定改變*/
+  const onchange = () => {
     const comment = test();
-    console.log(comment)
     // const some = this.#oldest.some(this.#contains);
-    if (oldest instanceof Comment) {
-      if (!latest.length) return true;
-      oldest.replaceWith(...latest);
-      oldest = latest;
+    if (state.oldest instanceof Comment) {
+      if (!state.latest.length) return true;
+      state.oldest.replaceWith(...state.latest);
+      state.oldest = state.latest;
       // return some;
     }
-    if (!latest.length) {
-      const diff = oldest.slice(1, oldest.length);
+    if (!state.latest.length) {
+      const diff = state.oldest.slice(1, state.oldest.length);
       for (const node of diff) {
         node.remove();
       }
-      oldest.at(0)?.replaceWith(comment as unknown as Comment);
-      oldest = comment as any
+      state.oldest.at(0)?.replaceWith(comment as unknown as Comment);
+      state.oldest = comment as any
+
       // return some;
     }
-    add();
-    remove();
+    if (once) {
+      state.latest = test();
+      state.oldest = state.latest;
+      once = false;
+      return state.latest;
+    } else {
+      add();
+      remove();
+    }
   }
+
+
+  return onchange;
 }

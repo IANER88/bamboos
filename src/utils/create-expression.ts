@@ -10,14 +10,16 @@ export default function createExpression(expression: IExpression) {
 		expression_stack.push(executes);
 		try {
 			const node = expression();
-			if (Array.isArray(node)) {
-				expression_stack.pop();
-				return node;
-			}
+//			if (Array.isArray(node)) {
+//				expression_stack.pop();
+//				return node;
+//			}
 
 			const subscriber = node instanceof Array ?
 				createList(expression) :
 				createContent(expression);
+
+//			console.log(node)
 			executes.subscriber = subscriber;
 
 			return subscriber();

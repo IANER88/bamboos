@@ -1,7 +1,7 @@
-import { RecrudescenceFn } from "@/hooks/use-recrudescence";
-import { content_stack } from "@/utils/create-content";
-import { expression_stack } from "@/utils/create-expression";
-import { list_stack } from "@/utils/create-list";
+import {RecrudescenceFn} from "@/hooks/use-recrudescence";
+import {content_stack} from "@/utils/create-content";
+import {expression_stack} from "@/utils/create-expression";
+import {list_stack} from "@/utils/create-list";
 
 
 export type Execute = {
@@ -52,7 +52,7 @@ const createSignal = (initialState) => {
     const content = content_stack.at(-1);
     const list = list_stack.at(-1);
     const expression = expression_stack.at(-1);
-    
+
     if (content) observes.content.add(content);
     if (list) observes.list.add(list);
     if (expression) observes.expression.add(expression)
@@ -64,7 +64,7 @@ const createSignal = (initialState) => {
       ...observes.list,
       ...observes.expression
     ]
-    for(const subscribe of subscribes){
+    for (const subscribe of subscribes) {
       subscribe.subscriber()
     }
   }
@@ -87,7 +87,7 @@ export default function useSignal<S>(initialState?: S): ISignal<S> {
 
   const signal = {
     value: typeof initialState === 'object' &&
-      initialState !== null ?
+    initialState !== null ?
       create(initialState) :
       initialState,
   };
