@@ -7,6 +7,11 @@ export type RecrudescenceFn = {
 
 export const recrudescence_stack: RecrudescenceFn[] = [];
 
+/**
+ * @function useRecrudescence 復發
+ * @param recrudescence 
+*/
+
 export default  function useRecrudescence(recrudescence: Recrudescence) {
   const rely = () => {
     for (const dep of effect.deps) {
