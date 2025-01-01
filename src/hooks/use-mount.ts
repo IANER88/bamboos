@@ -1,6 +1,10 @@
-export type Mount = () => void;
-export const mounts: Mount[] = [];
+export type IMount = () => void;
+export const mounts: IMount[] = [];
 
-export default function useMount(mount: Mount) {
-  mounts.push(mount)
+/**
+ * @function useMount 挂載
+ * @param mount
+ */
+export default function useMount(mount: IMount) {
+	mounts.push(mount)
 }
