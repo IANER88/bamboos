@@ -2,24 +2,18 @@ import createContent from "./create-content";
 import createList from "./create-list"
 
 type content = null | number | false | string | [];
-type list = [];
-type IExpression = () => content | list;
+type IExpression = () => content | [];
 export const expression_stack = [];
 export default function createExpression(expression: IExpression) {
 	const execute = () => {
 		expression_stack.push(executes);
 		try {
 			const node = expression();
-//			if (Array.isArray(node)) {
-//				expression_stack.pop();
-//				return node;
-//			}
 
 			const subscriber = node instanceof Array ?
 				createList(expression) :
 				createContent(expression);
 
-//			console.log(node)
 			executes.subscriber = subscriber;
 
 			return subscriber();
@@ -28,7 +22,7 @@ export default function createExpression(expression: IExpression) {
 		}
 	}
 
-	const executes: Execute = {
+	const executes = {
 		subscriber: () => null,
 	}
 

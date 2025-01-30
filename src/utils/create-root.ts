@@ -1,9 +1,11 @@
-import SignalRoot from "@/signal/signal-root";
+
+import { readMount } from "@/read";
+import { mount_stack } from "@/seeders/on-mount";
 import { JSX } from "@/types/jsx-runtime";
 
 export type Program = () => HTMLElement | JSX.Element;
 
-export const root_stack: SignalRoot[] = [];
+export const root_stack: [] = [];
 
 export default function createRoot(program: Program) {
 
@@ -15,17 +17,18 @@ export default function createRoot(program: Program) {
     constructor(root: Program){
       this.#root = root;
     }
+
     mount = (selector: string) => {
       const select = document.querySelector(selector);
       if (select) {
         this.#select = select;
         this.#select?.append(this.#root() as HTMLElement);
-        // for(const mount of mounts) mount();
+        readMount()
       }
     }
   }
 
-  const root = new Root(program)
+  const root = new Root(program);
 
   return root;
 }

@@ -20,6 +20,7 @@ export namespace JSX {
   interface ElementChildrenAttribute {
     children: {};
   }
+  
   interface EventHandler<T, E extends Event> {
     (
       e: E & {
@@ -968,6 +969,7 @@ export namespace JSX {
     step?: number | string | undefined;
     type?: string | undefined;
     value?: string | string[] | number | undefined;
+    'use:value'?: string | string[] | number | undefined;
     width?: number | string | undefined;
     crossOrigin?: HTMLCrossorigin | undefined;
     formAction?: string | SerializableAttributeValue | undefined;

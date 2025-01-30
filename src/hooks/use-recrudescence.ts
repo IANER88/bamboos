@@ -1,7 +1,7 @@
 export type Recrudescence = () => void;
 
 export type RecrudescenceFn = {
-  rely(): void;
+  subscriber(): void;
   deps: Set<Set<RecrudescenceFn>>
 }
 
@@ -13,7 +13,7 @@ export const recrudescence_stack: RecrudescenceFn[] = [];
 */
 
 export default  function useRecrudescence(recrudescence: Recrudescence) {
-  const rely = () => {
+  const subscriber = () => {
     for (const dep of effect.deps) {
       dep.delete(effect);
     }
@@ -28,7 +28,7 @@ export default  function useRecrudescence(recrudescence: Recrudescence) {
 
   const effect: RecrudescenceFn = {
     deps: new Set(),
-    rely,
+    subscriber,
   }
-  rely();
+  subscriber();
 }

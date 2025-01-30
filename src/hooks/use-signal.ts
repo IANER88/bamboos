@@ -1,7 +1,9 @@
-import {RecrudescenceFn} from "@/hooks/use-recrudescence";
-import {content_stack} from "@/utils/create-content";
-import {expression_stack} from "@/utils/create-expression";
-import {list_stack} from "@/utils/create-list";
+
+import { content_stack } from "@/utils/create-content";
+import { expression_stack } from "@/utils/create-expression";
+import { list_stack } from "@/utils/create-list";
+import { recrudescence_stack } from "./use-recrudescence";
+import { determine_stack } from "@/utils/create-determine";
 
 
 export type Execute = {
@@ -13,7 +15,7 @@ interface ISignal<S> {
 };
 
 
-const create = (initialState) => {
+const readSignal = <S>(initialState?: S) => {
 
   let state = initialState;
 
@@ -31,7 +33,7 @@ const create = (initialState) => {
       Object.keys(state).map(
         (key) => [
           key,
-          create(state[key])
+          readSignal(state[key])
         ]
       )
     );
@@ -40,29 +42,38 @@ const create = (initialState) => {
   return createSignal(state)
 }
 
-const createSignal = (initialState) => {
+const createSignal = <S>(initialState?: S) => {
 
   const observes = {
     content: new Set(),
     list: new Set(),
     expression: new Set(),
+    determine: new Set(),
+    recrudescence: new Set(),
   }
 
   const createGet = () => {
     const content = content_stack.at(-1);
     const list = list_stack.at(-1);
     const expression = expression_stack.at(-1);
+    const recrudescence = recrudescence_stack.at(-1);
+    const determine = determine_stack.at(-1);
+  
 
     if (content) observes.content.add(content);
     if (list) observes.list.add(list);
-    if (expression) observes.expression.add(expression)
+    if (expression) observes.expression.add(expression);
+    if (recrudescence) observes.recrudescence.add(recrudescence);
+    if (determine) observes.determine.add(determine);
   }
 
   const createSet = () => {
     const subscribes = [
       ...observes.content,
       ...observes.list,
-      ...observes.expression
+      ...observes.expression,
+      ...observes.determine,
+      ...observes.recrudescence,
     ]
     for (const subscribe of subscribes) {
       subscribe.subscriber()
@@ -87,8 +98,8 @@ export default function useSignal<S>(initialState?: S): ISignal<S> {
 
   const signal = {
     value: typeof initialState === 'object' &&
-    initialState !== null ?
-      create(initialState) :
+      initialState !== null ?
+      readSignal(initialState) :
       initialState,
   };
 

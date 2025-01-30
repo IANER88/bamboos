@@ -31,7 +31,7 @@ export default function createContent(content: Content) {
     return document.createTextNode(content);
   }
 
-  const onchange = () => {
+  const readContent = () => {
     state.latest = content();
     if (state.root === null) {
       state.root = test(state.latest);
@@ -47,5 +47,5 @@ export default function createContent(content: Content) {
     }
   }
 
-  return onchange;
+  return readContent;
 }

@@ -2,59 +2,57 @@ type Attribute = {
   subscriber: null | (() => unknown)
 }
 
+type OTHER = () => unknown;
+
+type ON =  (() => () => unknown);
+
 export const attribute_stack: Attribute[] = [];
 
-type I_ATTRIBUTE = HTMLElement | HTMLInputElement;
+type EI = HTMLElement | HTMLInputElement;
 
-type IStack = [string, () => () => unknown];
+type IStack = [string, ON | OTHER];
+
+
 export default function createAttribute(
-  this: I_ATTRIBUTE,
+  this: EI,
   stack: IStack,
 ) {
 
   const [name, attribute] = stack
 
-  const create = () => {
+  const readAttribute = () => {
     const on = /on:(.*)/;
     if (on.test(name)) {
       const [, event] = name.split(':');
       const title = event.split('-').join('');
-      this.addEventListener(title, attribute());
+      this.addEventListener(title, attribute() as ON);
       return;
     }
     const use = /use:(.*)/;
     if (use.test(name)) {
       const [, title] = name.split(':');
       switch (title) {
-        case 'key':
-          this.dataset.key = attribute();
-          break;
+        case 'key': {
+          const content = attribute() as string;
+          if (['number', 'string'].includes(typeof content)) {
+            this.dataset.key = content;
+            return;
+          }
+          throw `The value of key cannot be a ${typeof content}`
+        }
+        case 'value': {
+          if (this instanceof HTMLInputElement) this.value = attribute();
+        }
       }
     }
-//    switch (name) {
-//      case 'value':
-//        if (this instanceof HTMLInputElement) this.value = attribute();
-//        break;
-//      case 'use:key':
-//        this.dataset.key = attribute();
-//        break;
-//      case 'style':
-//        const value = attribute();
-//        this.setAttribute(
-//          name,
-//          Object.keys(value).map((key) => `${key}:${(value as {})[key]}`).join(';')
-//        )
-//    }
   };
 
   const execute = () => {
-    create();
     attribute_stack.push(executes);
     try {
       attribute()
-      const subscriber = create;
-      executes.subscriber = subscriber;
-      return subscriber
+      executes.subscriber = readAttribute;
+      return executes.subscriber();
     } finally {
       attribute_stack.pop();
     }

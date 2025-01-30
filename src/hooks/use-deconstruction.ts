@@ -1,8 +1,11 @@
 
 /**
- * 解构 props 保持响应性
+ * @function useDeconstruction
+ * @param props 
+ * 解構保持響應式
  */
 export default function useDeconstruction<S>(props?: S){
   // console.log(props);
   // const
+
 }

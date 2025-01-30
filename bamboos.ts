@@ -1,6 +1,5 @@
-import * as babel from '@babel/core';
-import generator from '@babel/generator'
-import type {Plugin} from 'vite'
+import { transformAsync } from '@babel/core';
+import type { Plugin } from 'vite'
 
 export default function BamboosJSX(): Plugin {
   const virtual = 'virtual:bamboos-dom'
@@ -33,22 +32,22 @@ export default function BamboosJSX(): Plugin {
 
       if (!tsx) return;
 
-      const effect = ({types}) => {
+      const effect = ({ types }) => {
 
         const CallExpression = (path) => {
 
         }
 
         const Program = (path) => {
-          const {node: {body}} = path;
+          const { node: { body } } = path;
           body.unshift(
-            babel.types.importDeclaration(
+            types.importDeclaration(
               [
-                babel.types.importNamespaceSpecifier(
-                  babel.types.identifier('Bamboos')
+                types.importNamespaceSpecifier(
+                  types.identifier('Bamboos')
                 )
               ],  // 使用 * 号导入
-              babel.types.stringLiteral('@/utils')
+              types.stringLiteral('@/utils')
             )
           );
 
@@ -60,6 +59,21 @@ export default function BamboosJSX(): Plugin {
           }
 
           if (node.type === 'JSXExpressionContainer') {
+            if (
+              types.isConditional(node.expression) ||
+              types.isLogicalExpression(node.expression)
+            ) {
+              const createDetermine = types.callExpression(
+                types.identifier('Bamboos.createDetermine'),
+                [
+                  types.arrowFunctionExpression(
+                    [],
+                    node.expression
+                  )
+                ]
+              )
+              return createDetermine;
+            }
 
             const createExpression = types.callExpression(
               types.identifier('Bamboos.createExpression'),
@@ -70,7 +84,6 @@ export default function BamboosJSX(): Plugin {
                 )
               ]
             )
-
             return createExpression;
           }
           if (node.type === 'JSXElement') {
@@ -88,12 +101,11 @@ export default function BamboosJSX(): Plugin {
 
                   const namespace_name = types.isJSXNamespacedName(attribute.name);
                   const name = namespace_name ?
-                    namespace.join(':') : attribute.name.name
+                    namespace.join(':') : attribute.name.name;
 
                   const container = types.isJSXExpressionContainer(attribute.value);
                   const create = (title: string) => {
                     const createAttribute = () => {
-
                       return types.arrayExpression(
                         [
                           types.stringLiteral(name),
@@ -207,14 +219,11 @@ export default function BamboosJSX(): Plugin {
         filename: id,
       };
 
-      const result = await babel.transformAsync(source, option) as {
+      const result = await transformAsync(source, option) as {
         code: string;
         map: any;
       };
-      return {
-        code: result.code,
-        map: result.map,
-      };
+      return result;
     },
   }
 }

@@ -1,11 +1,10 @@
-import SignalComponent from "@/signal/signal-component";
 import { JSX } from "@/types/jsx-runtime";
 import { Reference } from "@/hooks/use-reference";
-import { Disentangle, disentangles } from "@/hooks/use-disentangle";
-import { Mount, mounts } from "@/hooks/use-mount";
+import { ReadDisentangle, disentangle_stack } from "@/seeders/on-disentangle";
+import { ReadMount, mount_stack } from "@/seeders/on-mount";
 
 
-export type Executes = { subscriber: SignalComponent | null }
+export type Executes = { subscriber: null }
 
 type Component = (props: {}, reference: Reference | void) => JSX.Element;
 
@@ -16,11 +15,11 @@ type Props = {
 export const components: Executes[] = [];
 
 type ICycles = {
-  mounts: Set<Mount | unknown>;
-  disentangles: Set<Disentangle | unknown>;
+  mount: ReadMount | undefined | null;
+  disentangle: Set<ReadDisentangle | unknown>;
 }
 
-export const cycles: ICycles[] = [];
+export const component_stack: ICycles[] = [];
 export default function createComponent(component: Component, props: Props, ...children) {
 
   const {
@@ -30,21 +29,24 @@ export default function createComponent(component: Component, props: Props, ...c
   } = props ?? {};
 
   const execute = () => {
-    cycles.push(cycle);
+    component_stack.push(cycle);
     try {
-      const disentangle = disentangles.at(-1);
-      const mount = mounts.at(-1);
-      if (disentangle) cycle.disentangles.add(disentangle);
-      if (mount) cycle.mounts.add(mount);
-      return component(props, reference);
+      const disentangle = disentangle_stack.at(-1);
+      if (disentangle) cycle.disentangle.add(disentangle);
+      
+      return component({
+        ...rest,
+        children
+      }, reference);
+
     } finally {
-      cycles.pop();
+
     }
   }
-  
+
   const cycle = {
-    mounts: new Set(),
-    disentangles: new Set(),
-  }  
+    mount: null,
+    disentangle: new Set(),
+  }
   return execute();
 }
