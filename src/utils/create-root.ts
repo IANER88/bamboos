@@ -1,5 +1,6 @@
 
-import { readMount } from "@/read";
+
+import onLive from "@/seeders/on-live";
 import { mount_stack } from "@/seeders/on-mount";
 import { JSX } from "@/types/jsx-runtime";
 
@@ -23,7 +24,7 @@ export default function createRoot(program: Program) {
       if (select) {
         this.#select = select;
         this.#select?.append(this.#root() as HTMLElement);
-        readMount()
+        onLive(mount_stack);
       }
     }
   }

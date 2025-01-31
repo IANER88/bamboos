@@ -1,7 +1,7 @@
 export type ReadMount = () => void;
 
 type Mount = {
-	mount: ReadMount,
+	effect: ReadMount,
 	next: Mount | null,
 }
 
@@ -14,14 +14,24 @@ export const mount_stack: Mount[] = [];
 export default function onMount(mount: ReadMount) {
 
 	const hook = {
-		mount,
+		effect: mount,
 		next: null,
 	}
 
 	const read = mount_stack.at(-1);
-	if (read) {
-		read.next = hook
-	} else {
-		mount_stack.push(hook);
+
+	if (!read) {
+		mount_stack.push(hook) 
+		return;
 	}
+	if (!read.next) {
+		read.next = hook;
+		return;
+	}
+
+	let last = read;
+	while (last.next){
+		last = last.next;
+	}
+	last.next = hook;
 }

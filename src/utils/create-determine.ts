@@ -1,6 +1,6 @@
 import { mount_stack } from '@/seeders/on-mount';
-import {  component_stack } from './create-component'
-import { readMount } from '@/read';
+import { CLERN, disentangle_stack } from '@/seeders/on-disentangle';
+import onLive from '@/seeders/on-live';
 
 type Determines = {
   subscriber: null | (() => void);
@@ -8,43 +8,51 @@ type Determines = {
 
 export const determine_stack: Determines[] = [];
 
-type IDetermine = () => void | null | boolean | HTMLElement | number;
+type IDetermine = () => undefined | null | boolean | HTMLElement | number;
 
 interface Read {
   root: null | HTMLElement | Comment;
-  mount: Set<IMount>;
+  disentangle: null | CLERN[];
 }
 
 export default function createDetermine(condition: IDetermine) {
 
   const read: Read = {
     root: null,
+    disentangle: null,
   }
   const readDetermine = () => {
 
-    const content = condition();
+    let content: ReturnType<IDetermine> | Read['root'] = condition();
     const test = [false, void 0, null, 0];
-
-    if (content instanceof HTMLElement) {
-      read.root?.replaceWith(content);
-      if (read.root) {
-        readMount();
-      }
-      read.root = content;
+        
+    if (test.includes(content)){
+      content = document.createComment('determine');
     }
-
-    // if (test.includes(content)){
-    //   const node = document.createComment('determine');
-    //   read.root?.replaceWith(node);
-    //   read.root = node;
-    // }
     // const text = ['string', 'number'];
     // if (text.includes(typeof content)){
     //   const node = document.createTextNode(content);
     //   read.root?.replaceWith(node);
     //   read.root = node;
     // }
+    if (read.root) {
+      // 執行卸載
 
+      
+      if (read.disentangle) {
+        onLive(read.disentangle);
+        read.disentangle = null;
+      }
+      read.root?.replaceWith(content);
+      onLive(mount_stack);
+    }
+
+    if (disentangle_stack.length) {
+      read.disentangle = [...disentangle_stack];
+      disentangle_stack.length = 0;
+    }
+    
+    read.root = content;
     return read.root;
   }
 

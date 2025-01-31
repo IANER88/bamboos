@@ -1,6 +1,6 @@
 import { useRecrudescence, useSignal } from './hooks';
 import './root.css';
-import { onMount } from './seeders';
+import { onDisentangle, onMount } from './seeders';
 
 function About() {
 
@@ -11,6 +11,22 @@ function About() {
   return (
     <main id="about">
       about
+    </main>
+  )
+}
+
+function Bamboo(){
+
+  onMount(() => {
+    console.log(
+      document.querySelector('#bamboo')
+    );
+    
+  })
+
+  return (
+    <main id="bamboo">
+      bamboo
     </main>
   )
 }
@@ -26,9 +42,15 @@ function Solid() {
     console.log(document.querySelector('#solid'), 2);
   });
 
+  onDisentangle(() => {
+    console.log('disentangle');
+    
+  })
+
   return (
     <main id="solid">
       solid
+      <Bamboo />
     </main>
   )
 }

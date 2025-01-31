@@ -1,24 +1,39 @@
 
 export type ReadDisentangle = () => void;
 
-export const disentangle_stack: ReadDisentangle[] = [];
+export type CLERN = {
+  effect: ReadDisentangle;
+  next: null | CLERN;
+}
+
+export const disentangle_stack: CLERN[] = [];
+
 /**
- * @function useDisentangle
+ * @function onDisentangle
  * unload
  */
 export default function onDisentangle(disentangle: ReadDisentangle) {
 
   const clean = {
-    disentangle,
+    effect: disentangle,
     next: null,
   }
 
   const read = disentangle_stack.at(-1);
 
-  if (read) {
-    read.next = clean
-  } else {
-
-    disentangle_stack.push(clean);
+  if (!read) {
+    disentangle_stack.push(clean)
+    return;
   }
+  if (!read.next) {
+    read.next = clean;
+    return;
+  }
+
+  let last = read;
+  while (last.next) {
+    last = last.next;
+  }
+  last.next = clean;
+
 }
